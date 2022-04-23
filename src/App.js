@@ -1,25 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import Registration from "./Components/Registration";
+import Login from "./Components/Login";
+import Main from "./Components/Main";
+import { BrowserRouter, Routes,Route, Navigate } from "react-router-dom";
+import { Component } from "react";
+import { auth,onAuthStateChanged  } from "./firebase";
+import { connect } from "react-redux";
+import {setUser} from './Action/ActionIndex'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component{
+  state = {
+    check: false
+  }
+
+  componentDidMount(){
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        this.setState({check:true})
+       
+      } else {
+        this.setState({check:false})
+      }
+    });
+  }
+
+
+  render(){
+    const {check} = this.state
+    return (
+      <BrowserRouter>
+        {check?
+        <Routes>
+        <Route path='/' element={<Navigate to='/main'/>}/>
+        <Route path='/registration' element={<Navigate to='/main'/>}/>
+        <Route path='/main' element={<Main/>}/>
+        </Routes>
+      :
+        <Routes>
+        <Route path='/' element={<Login/>}/>
+        <Route path='/registration' element={<Registration/>}/>
+        <Route path='/main' element={<Main/>}/>
+        </Routes>
+      }
+      </BrowserRouter>
+    );
+  }
 }
 
-export default App;
+
+export default connect(null, {setUser})(App)
